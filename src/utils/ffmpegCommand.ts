@@ -44,6 +44,48 @@ export class Command { // 命令封装
             commands: [...inputFiles, '-filter_complex', filterComplex, '-f', 'mp3', `${outPath}`]
         };
     }
+    // 视频合并
+    mergeVideo(pathConfig: Record<string, any>, trackStart: number, trackList: TrackItem[], trackAttrMap: Record<string, any>) {
+        const inputFiles:string[] = [];
+        const { resourcePath, videoPath } = pathConfig;
+        const outPath = `${videoPath}/video.mp4`;
+        const filters:string[] = [];
+        const filterSort:string[] = [];
+        let fileIndex = 0;
+
+        trackList.forEach((trackItem, index) => {
+            if (trackAttrMap[trackItem.id] && !trackAttrMap[trackItem.id].silent) {
+                const { name, format, start, end, offsetL, offsetR } = trackItem as (VideoTractItem | AudioTractItem);
+                let filterTag = `${fileIndex}`;
+                // if (offsetL > 0 || offsetR > 0) {
+                //     const clipS = (offsetL / 30).toFixed(2);
+                //     const clipE = ((end - start + offsetL) / 30).toFixed(2);
+                //     filters.push(`[${filterTag}]atrim=${clipS}:${clipE}[a${filterTag}]`);
+                //     filterTag = `a${fileIndex}`;
+                // }
+                const delay = Math.floor((start - trackStart) / 30 * 1000);
+
+                // 输入
+                const resourceFile = `${resourcePath}${name}.${format}`;
+                inputFiles.push('-i', resourceFile);
+
+                // 将视频轨道延迟出现
+                filters.push(`[${filterTag}]adelay=${delay}|${delay}[s${fileIndex}]`);
+                filterSort.push(`[s${fileIndex}]`);
+
+                fileIndex++;
+            }
+        });
+        console.log('inputFiles', inputFiles);
+        console.log('trackAttrMap', trackAttrMap);
+        console.log('trackList', trackList);
+
+        // const filterComplex = `${filters.join(';')}amix=inputs=${filterSort.length}:duration=longest:dropout_transition=0`;
+        const filterComplex = `[1:v][a];[0:v][1:v]overlay=(main_w-overlay_w)/2:(main_h-over_h)/2[ov];`;
+        return {
+            commands: [...inputFiles, '-filter_complex', filterComplex, '-f', 'mp4', `${outPath}`]
+        };
+    }
     // 视频抽帧
     genFrame(filePath: string, framePath: string, size: { w: number, h: number }, format = 'video', fps = 30) {
         if (format === 'gif') {

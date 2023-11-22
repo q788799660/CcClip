@@ -20,6 +20,7 @@ class FFManager {
     public showLog = true; // 是否打印输出
     public playTimeCache = new Map();
     public audioCache:string[] = [];
+    public videoCache: string[] = [];
     public baseCommand = new Command(); // 基础命令
     public pathConfig = {
         resourcePath: '/resource/', // 资源目录，存放视频、音频等大文件
@@ -27,7 +28,8 @@ class FFManager {
         playFrame: '/pframe/', // 播放帧文件，因为文件体积大，可能会不定时删除
         audioPath: '/audio/', // 合成音频文件
         logPath: '/logs/', // 命令日志文件目录
-        wavePath: '/wave/' // 音频波形文件目录
+        wavePath: '/wave/', // 音频波形文件目录
+        videoPath: '/video/' // video 文件目录
     };
     public static Hooks = {
         beforeInit: (ins: FFManager) => {}, // init之前
@@ -323,6 +325,45 @@ class FFManager {
         return {
             start, end, audioUrl
         };
+    }
+    // 获取视频
+    async getVideo(trackList: TrackItem[], trackAttrMap: Record<string, any>) {
+        const fileName = `video.mp4`;
+        const filePath = `${this.pathConfig.videoPath}/${fileName}`;
+
+        let start = 0;
+        let end = 0;
+        trackList.forEach(trackItem => {
+            start = Math.min(trackItem.start, start);
+            end = Math.max(trackItem.end, end);
+        });
+        await this.mergeVideo(start, trackList, trackAttrMap, fileName, filePath);
+
+        if (!this.fileExist(this.pathConfig.videoPath, fileName)) {
+            return {
+                start, end,
+                VideoUrl: ''
+            };
+        }
+        console.log('getVideo', trackList);
+
+        const VideoUrl = this.getFileUrl(this.pathConfig.videoPath, 'video', 'mp4');
+        return {
+            start, end, VideoUrl
+        };
+    }
+    // 视频合成
+    async mergeVideo(start: number, trackList: TrackItem[], trackAttrMap: Record<string, any>, fileName: string, filePath: string) {
+        const { commands } = this.baseCommand.mergeVideo(this.pathConfig, start, trackList, trackAttrMap);
+        // if (this.videoCache.indexOf(commands.join('')) > -1) {
+        //     return false
+        // }
+        // this.videoCache = [commands.join('')];
+        if (this.fileExist(this.pathConfig.videoPath, fileName)) {
+            // 重新生成前删除
+            this.rmFile(filePath);
+        }
+        return this.run(commands);
     }
 }
 export default FFManager;

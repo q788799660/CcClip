@@ -48,7 +48,7 @@ export class Command { // 命令封装
     mergeVideo(pathConfig: Record<string, any>, trackStart: number, trackList: TrackItem[], trackAttrMap: Record<string, any>) {
         const inputFiles:string[] = [];
         const { resourcePath, videoPath } = pathConfig;
-        const outPath = `${videoPath}/video.mp4`;
+        const outPath = `${videoPath}/video123.mp4`;
         const filters:string[] = [];
         const filterSort:string[] = [];
         let fileIndex = 0;
@@ -81,9 +81,9 @@ export class Command { // 命令封装
         console.log('trackList', trackList);
 
         // const filterComplex = `${filters.join(';')}amix=inputs=${filterSort.length}:duration=longest:dropout_transition=0`;
-        const filterComplex = `[1:v][a];[0:v][1:v]overlay=(main_w-overlay_w)/2:(main_h-over_h)/2[ov];`;
+        const filterComplex = `[0:v]pad=iw*2:ih*1[a];[a][1:v]overlay=50:50`;
         return {
-            commands: [...inputFiles, '-filter_complex', filterComplex, '-f', 'mp4', `${outPath}`]
+            commands: [...inputFiles, '-filter_complex', filterComplex, `${outPath}`]
         };
     }
     // 视频抽帧

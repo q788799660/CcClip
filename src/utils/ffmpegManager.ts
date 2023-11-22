@@ -29,7 +29,7 @@ class FFManager {
         audioPath: '/audio/', // 合成音频文件
         logPath: '/logs/', // 命令日志文件目录
         wavePath: '/wave/', // 音频波形文件目录
-        videoPath: '/video/' // video 文件目录
+        videoPath: '/video/' // 合成 video 文件目录
     };
     public static Hooks = {
         beforeInit: (ins: FFManager) => {}, // init之前
@@ -141,6 +141,7 @@ class FFManager {
     }
     // 判断文件是否存在
     fileExist(filePath: string, fileName:string) {
+        console.log(this.readDir(filePath))
         return this.readDir(filePath).indexOf(fileName) > -1;
     }
     // FS写文件
@@ -165,6 +166,7 @@ class FFManager {
      * */
     getFileUrl(filePath: string, fileName: string, format: string) {
         const fileBlob = this.getFileBlob(filePath, fileName, format);
+        console.log(fileBlob)
         return window.URL.createObjectURL(fileBlob);
     }
     /**
@@ -328,7 +330,7 @@ class FFManager {
     }
     // 获取视频
     async getVideo(trackList: TrackItem[], trackAttrMap: Record<string, any>) {
-        const fileName = `video.mp4`;
+        const fileName = `video123.mp4`;
         const filePath = `${this.pathConfig.videoPath}/${fileName}`;
 
         let start = 0;
@@ -347,7 +349,7 @@ class FFManager {
         }
         console.log('getVideo', trackList);
 
-        const VideoUrl = this.getFileUrl(this.pathConfig.videoPath, 'video', 'mp4');
+        const VideoUrl = this.getFileUrl(this.pathConfig.videoPath, 'video123', 'mp4');
         return {
             start, end, VideoUrl
         };
@@ -355,10 +357,10 @@ class FFManager {
     // 视频合成
     async mergeVideo(start: number, trackList: TrackItem[], trackAttrMap: Record<string, any>, fileName: string, filePath: string) {
         const { commands } = this.baseCommand.mergeVideo(this.pathConfig, start, trackList, trackAttrMap);
-        // if (this.videoCache.indexOf(commands.join('')) > -1) {
-        //     return false
-        // }
-        // this.videoCache = [commands.join('')];
+        if (this.videoCache.indexOf(commands.join('')) > -1) {
+            return false;
+        }
+        this.videoCache = [commands.join('')];
         if (this.fileExist(this.pathConfig.videoPath, fileName)) {
             // 重新生成前删除
             this.rmFile(filePath);

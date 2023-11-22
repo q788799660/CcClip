@@ -52,6 +52,14 @@
 
   async function exportMp4() {
     const { VideoUrl } = await ffmpeg.getVideo(playerStore.audioPlayData, toRaw(attrStore.trackAttrMap));
+    const video = document.createElement('video');
+    video.src = VideoUrl;
+    video.style.position = 'absolute';
+    video.style.top = '0'
+    video.style.zIndex = '99999'
+    video.play()
+    video.controls = true
+    document.body.appendChild(video);
     console.log(ffmpeg);
     console.log(VideoUrl);
   }

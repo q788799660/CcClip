@@ -17,7 +17,7 @@
   import { computed, inject, ref, watch, PropType } from 'vue';
   import { usePlayerState } from '@/stores/playerState';
   import trackCheckPlaying from './trackCheckPlaying';
-  import { AudioTractItem } from '@/stores/trackState';
+  import type { AudioTractItem } from '@/stores/trackState';
   const props = defineProps({
     trackItem: {
       type: Object as PropType<AudioTractItem>,

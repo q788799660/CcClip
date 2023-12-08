@@ -99,6 +99,22 @@ export function computedItemShowArea(trackItem: Record<string, any>, canvasSize:
 export function isVideo(type: string) {
     return type === 'video';
 }
+
+/**
+ * 校准XY位置以中心为基准
+ * @param {number} x 原x值
+ * @param {number} y 原y值
+ * @param {number} width 视频宽度
+ * @param {number} height 视频高度
+ * @returns {Object} {x,y}
+ */
+export function poiXYBaseCenter(x: number, y: number, width: number, height: number) {
+    return {
+        x: x + width / 2,
+        y: y + height / 2
+    };
+}
+
 // 封装json格式化, 避免error
 export function getJsonParse(jsonStr: string): any {
     let res = '';

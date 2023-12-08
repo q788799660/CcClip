@@ -1,5 +1,5 @@
 import type { TrackItem, VideoTractItem, AudioTractItem } from '@/stores/trackState';
-
+import { poiXYBaseCenter } from './common';
 export class Command { // 命令封装
     // 音视频分离
     splitAudio(path: string, videoName: string, format: string) {
@@ -48,42 +48,121 @@ export class Command { // 命令封装
     mergeVideo(pathConfig: Record<string, any>, trackStart: number, trackList: TrackItem[], trackAttrMap: Record<string, any>) {
         const inputFiles:string[] = [];
         const { resourcePath, videoPath } = pathConfig;
-        const outPath = `${videoPath}/video123.mp4`;
+        const outPath = `${videoPath}video123.mp4`;
         const filters:string[] = [];
         const filterSort:string[] = [];
         let fileIndex = 0;
+        let videoIndex = 0;
+        filters.push('[0:v]pad=iw*1:ih*1[s0]');
+        let lastOverlay = '';
 
+        let preIdent = 's0';
+        let nextIdent = 's0';
+
+        let textInp = '';
+
+        let videoBase = {};
+        // 1秒30帧
         trackList.forEach((trackItem, index) => {
+            const trackAttrMapItem = trackAttrMap[trackItem.id];
             if (trackAttrMap[trackItem.id] && !trackAttrMap[trackItem.id].silent) {
                 const { name, format, start, end, offsetL, offsetR } = trackItem as (VideoTractItem | AudioTractItem);
                 let filterTag = `${fileIndex}`;
-                // if (offsetL > 0 || offsetR > 0) {
-                //     const clipS = (offsetL / 30).toFixed(2);
-                //     const clipE = ((end - start + offsetL) / 30).toFixed(2);
-                //     filters.push(`[${filterTag}]atrim=${clipS}:${clipE}[a${filterTag}]`);
-                //     filterTag = `a${fileIndex}`;
-                // }
-                const delay = Math.floor((start - trackStart) / 30 * 1000);
+                const stack = [];
+                // const delay = Math.floor((start - trackStart) / 30);
+                const delay = start - trackStart;
+
+                console.log('delay', delay)
 
                 // 输入
-                const resourceFile = `${resourcePath}${name}.${format}`;
-                inputFiles.push('-i', resourceFile);
+                if (trackItem.type === 'video') {
+                    const resourceFile = `${resourcePath}${name}.${format}`;
+                    inputFiles.push('-i', resourceFile);
+                }
 
-                // 将视频轨道延迟出现
-                filters.push(`[${filterTag}]adelay=${delay}|${delay}[s${fileIndex}]`);
-                filterSort.push(`[s${fileIndex}]`);
+                // 视频
+                if (trackItem.type === 'video') {
+                    const pre = videoIndex === 0 ? nextIdent : `${videoIndex}:v`;
 
+                    // 前标志位赋值
+                    preIdent = pre;
+                    let next = `ssss${videoIndex}`;
+
+                    // 延迟
+                    const setpts = `[${pre}]fps=30,setpts=PTS+${delay}[ss${videoIndex}]`;
+                    // 缩放
+                    const scale = `[ss${videoIndex}]scale=iw*${trackAttrMapItem.scale / 100}:ih*${trackAttrMapItem.scale / 100}[sss${videoIndex}]`;
+                    // 填充
+                    const pad = `[sss${videoIndex}]pad=ceil(iw/2)*2:ceil(ih/2)*2[${next}]`;
+
+                    const xPoi = (trackAttrMapItem.left >= 0 ? '+' : '') + trackAttrMapItem.left;
+                    const yPoi = (trackAttrMapItem.top >= 0 ? '+' : '') + trackAttrMapItem.top;
+
+                    stack.push(setpts, scale, pad);
+                    if (videoIndex !== 0) {
+                        const firstOver = lastOverlay;
+                        const secondOver = next;
+                        // 最后一个视频 还有问题 待优化  不给overlay加标签 否则会报错 Filter overlay:default has an unconnected output
+                        lastOverlay = fileIndex === trackList.length - 1 ? '' : `[overlay${videoIndex}]`;
+
+                        let x = `floor(main_w/2-(overlay_w*${trackAttrMapItem.scale / 100}/2))${xPoi}`;
+                        let y = `floor(main_h/2-(overlay_h*${trackAttrMapItem.scale / 100}/2))${yPoi}`;
+
+                        // 叠加视频 secondOver 叠加在 firstOver 上
+                        const overlay = `${firstOver}[${secondOver}]overlay=${x}:${y}:enable='between(n,${start},${end})'${lastOverlay}`;
+                        stack.push(overlay);
+
+                        next = lastOverlay;
+                    } else {
+                        // 第一个视频的滤镜命名赋值给 lastOverlay
+                        lastOverlay = `[${next}]`;
+                        videoBase = trackItem;
+                    }
+                    nextIdent = next;
+                    videoIndex += 1;
+                }
+                // 文本
+                if (trackItem.type === 'text') {
+                    // 处理文本
+                    const text = trackAttrMapItem.text;
+                    const fontSize = trackAttrMapItem.fontSize;
+                    const color = trackAttrMapItem.color;
+
+                    const xPoi = (trackAttrMapItem.left >= 0 ? '+' : '') + trackAttrMapItem.left;
+                    const yPoi = (trackAttrMapItem.top >= 0 ? '+' : '') + trackAttrMapItem.top;
+
+                    // const { x, y } = poiXYBaseCenter(+xPoi, +yPoi, );
+
+                    const fontname = '/fonts/fangsongGBK.ttf';
+
+                    const pre = nextIdent;
+
+                    nextIdent = `text${fileIndex}`;
+
+                    const textStr = `[${pre}]drawtext=fontfile='${fontname}':text='${text}':fontsize=${fontSize}:`
+                        + `fontcolor=white:x=${xPoi}:y=${yPoi}:enable='between(n,${start},${end})'[${nextIdent}]`;
+                    // filtersStr += textStr;
+                    stack.push(textStr);
+                    // textInp = `drawtext=text=${text}:fontsize=${fontSize}:`
+                    // + `fontcolor=white:x=${xPoi}:y=${yPoi}:enable='between(n,${start},${end})'`;
+                }
+                // console.log(stack.join(';'))
+                if (stack.length > 0) {
+                    filters.push(stack.join(';'));
+                }
                 fileIndex++;
             }
         });
-        console.log('inputFiles', inputFiles);
+        console.log('filters', filters.join(';'));
         console.log('trackAttrMap', trackAttrMap);
         console.log('trackList', trackList);
 
         // const filterComplex = `${filters.join(';')}amix=inputs=${filterSort.length}:duration=longest:dropout_transition=0`;
-        const filterComplex = `[0:v]pad=iw*2:ih*1[a];[a][1:v]overlay=50:50`;
+        // const filterComplex = `[0:v]pad=iw*1:ih*1[p0];[p0]setpts=PTS/TB[s0];[s0]scale=iw*0.86:ih*0.86[sc0];[1:v]setpts=PTS+1/TB[s1];[s1]scale=iw*0.56:ih*0.56[sc1];[sc0][sc1]overlay=50:50:enable='between(n,51,201)'`;
+        // const filterComplex = ''
+        // const x = `-vf select='if(lt(t,5),1,0)',fade=out:st=5:d=1`
         return {
-            commands: [...inputFiles, '-filter_complex', filterComplex, `${outPath}`]
+            commands: [...inputFiles, '-filter_complex', `${filters.join(';')}`, '-r', '30', `${outPath}`]
         };
     }
     // 视频抽帧

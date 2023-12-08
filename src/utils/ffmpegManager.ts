@@ -1,4 +1,4 @@
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import { createFFmpeg, fetchFile, type FFmpeg } from '@ffmpeg/ffmpeg';
 import { ref, reactive, watch } from 'vue';
 import { FileTypeMap } from '@/data/constant';
 import { Command } from '@/utils/ffmpegCommand';
@@ -13,7 +13,7 @@ interface RunTask {
  * FFmpeg 接口包装类
  * */
 class FFManager {
-    private ffmpeg: Record<string, any> = {}; // ffmpeg实例
+    private ffmpeg: FFmpeg; // ffmpeg实例
     private runTask = reactive<RunTask[]>([]);
     private running = ref(false); // 运行状态
     public isLoaded = ref(false); // 是否已加载
@@ -29,7 +29,8 @@ class FFManager {
         audioPath: '/audio/', // 合成音频文件
         logPath: '/logs/', // 命令日志文件目录
         wavePath: '/wave/', // 音频波形文件目录
-        videoPath: '/video/' // 合成 video 文件目录
+        videoPath: '/video/', // 合成 video 文件目录
+        fontPath: '/fonts/'
     };
     public static Hooks = {
         beforeInit: (ins: FFManager) => {}, // init之前
@@ -40,7 +41,8 @@ class FFManager {
         const createOptions = {
             corePath: '/ffmpeg/ffmpeg-core.js',
             log: this.showLog,
-            progress: this.showLog ? this.progress : () => {}
+            progress: this.showLog ? this.progress : () => {},
+            logger: this.logger
         };
         this.ffmpeg = createFFmpeg(createOptions);
         watch(this.runTask, () => {
@@ -71,6 +73,8 @@ class FFManager {
             return;
         }
         const { commands, resolve, reject } = runTask;
+        console.log(...commands);
+
         const result = await this.ffmpeg.run(...commands);
         resolve(result);
         this.runTask.shift();
@@ -141,7 +145,7 @@ class FFManager {
     }
     // 判断文件是否存在
     fileExist(filePath: string, fileName:string) {
-        console.log(this.readDir(filePath))
+        // console.log(this.readDir(filePath))
         return this.readDir(filePath).indexOf(fileName) > -1;
     }
     // FS写文件
@@ -151,6 +155,9 @@ class FFManager {
         }
         this.logDir(filePath);
     }
+    // async loadFont(fileName: string, fontFile: string) {
+    //     await this.ffmpeg.FS('writeFile', fileName, await fetchFile(fontFile));
+    // }
     // 获取文件buffer
     getFileBuffer(filePath: string, fileName: string, format: string) {
         const localPath = `${fileName}.${format}`;
@@ -195,6 +202,7 @@ class FFManager {
         if (this.fileExist(this.pathConfig.audioPath, fileName)) this.rmFile(filePath); // 重新生成前删除
         return this.run(commands);
     }
+
     /**
      * 从视频中分离音频
      * */
@@ -331,7 +339,7 @@ class FFManager {
     // 获取视频
     async getVideo(trackList: TrackItem[], trackAttrMap: Record<string, any>) {
         const fileName = `video123.mp4`;
-        const filePath = `${this.pathConfig.videoPath}/${fileName}`;
+        const filePath = `${this.pathConfig.videoPath}${fileName}`;
 
         let start = 0;
         let end = 0;
@@ -339,6 +347,7 @@ class FFManager {
             start = Math.min(trackItem.start, start);
             end = Math.max(trackItem.end, end);
         });
+
         await this.mergeVideo(start, trackList, trackAttrMap, fileName, filePath);
 
         if (!this.fileExist(this.pathConfig.videoPath, fileName)) {

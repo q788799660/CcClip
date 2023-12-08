@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
   import logoImage from '@/assets/ccLogo.png';
-  import { ref, computed, inject, toRaw } from 'vue';
+  import { ref, computed, inject, toRaw, nextTick } from 'vue';
   import { Download, Sunny, Moon } from '@element-plus/icons-vue';
   import type FFManager from '@/utils/ffmpegManager';
   import { usePageState } from '@/stores/pageState';
@@ -51,16 +51,20 @@
   const ffmpeg = inject('ffmpeg') as FFManager;
 
   async function exportMp4() {
-    const { VideoUrl } = await ffmpeg.getVideo(playerStore.audioPlayData, toRaw(attrStore.trackAttrMap));
+    console.log(playerStore.trackData)
+    const { VideoUrl } = await ffmpeg.getVideo(playerStore.trackData, toRaw(attrStore.trackAttrMap));
     const video = document.createElement('video');
     video.src = VideoUrl;
     video.style.position = 'absolute';
-    video.style.top = '0'
-    video.style.zIndex = '99999'
-    video.play()
-    video.controls = true
+    video.style.top = '0';
+    video.style.zIndex = '99999';
+    video.style.width = '400px';
+    video.play();
+    video.controls = true;
     document.body.appendChild(video);
-    console.log(ffmpeg);
-    console.log(VideoUrl);
+    nextTick(() => {
+      console.log(ffmpeg);
+      console.log(VideoUrl);
+    });
   }
 </script>

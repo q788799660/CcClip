@@ -9,10 +9,10 @@
 
 <script setup lang="ts">
   import trackCheckPlaying from './trackCheckPlaying';
-  import { ImageTractItem } from '@/stores/trackState';
+  import type { ImageTractItem } from '@/stores/trackState';
   import { PropType, watch, inject } from 'vue';
   import { usePlayerState } from '@/stores/playerState';
-  import FFManager from '@/utils/ffmpegManager';
+  import type FFManager from '@/utils/ffmpegManager';
   const props = defineProps({
     trackItem: {
       type: Object as PropType<ImageTractItem>,

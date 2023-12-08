@@ -9,8 +9,11 @@ interface BaseTractItem {
   id: string,
   type: TrackType,
   name: string,
+  /** 起始帧 */
   start: number,
+  /** 结束帧 */
   end: number,
+  /** 总帧数 */
   frameCount: number,
   offsetL: number, // 音视频左侧裁切
   offsetR: number, // 音视频右侧裁切
@@ -34,7 +37,9 @@ export interface AudioTractItem extends BaseTractItem{
 
 export interface TextTractItem extends BaseTractItem{
   cover: string,
-  templateId: number
+  templateId: number,
+  source: string,
+  format: string,
 }
 
 export interface ImageTractItem extends BaseTractItem{

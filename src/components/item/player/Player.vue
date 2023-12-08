@@ -19,7 +19,7 @@
   import { VideoCameraFilled } from '@element-plus/icons-vue';
   import Loading from '@/components/Loading.vue';
   import { ref, inject, computed } from 'vue';
-  import FFManager from '@/utils/ffmpegManager';
+  import type FFManager from '@/utils/ffmpegManager';
   import { usePlayerState } from '@/stores/playerState';
   import { audioSetup } from '@/components/item/player/initAudio';
   import { CanvasPlayer } from '@/components/item/player/canvasDraw';

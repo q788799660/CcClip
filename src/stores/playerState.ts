@@ -17,10 +17,12 @@ export const usePlayerState = defineStore('playerState', () => {
   });
   const existVideo = ref(false);
   const audioPlayData = ref<TrackItem[]>([]); // 全局音频，因为存在音频混合，所以将所有音频混合成一个
+  const trackData = ref<TrackItem[]>([]);
   function mergeVideo() {
     let existV = false;
     const endList: number[] = [0];
     const vaList = <TrackItem[]>[];
+    const allTraList = <TrackItem[]>[];
     let playerWidth = 0; // 视频元素最大宽度
     let playerHeight = 0;// 视频元素最大高度
     let audioStart = -1; // 音频开始
@@ -42,10 +44,12 @@ export const usePlayerState = defineStore('playerState', () => {
           audioEnd = Math.max(trackItem.end, audioEnd);
           lineEnd = Math.max(lineEnd, trackItem.end); // 根据起止位置求出总长度
         }
+        allTraList.push(trackItem);
       });
       endList.push(lineEnd);
     });
     audioPlayData.value = vaList;
+    trackData.value = allTraList;
     playerConfig.frameCount = Math.max(...endList);
     playerConfig.playerWidth = playerWidth;
     playerConfig.playerHeight = playerHeight;
@@ -67,6 +71,7 @@ export const usePlayerState = defineStore('playerState', () => {
     ingLoadingCount,
     playTargetTrackMap,
     audioPlayData,
+    trackData,
     existVideo,
     ...toRefs(playerConfig)
   };

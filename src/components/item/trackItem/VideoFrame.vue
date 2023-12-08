@@ -9,8 +9,8 @@
 
 <script setup lang="ts">
   import { ref, toRefs, onMounted, nextTick, watch, reactive, inject } from 'vue';
-  import FFManager from '@/utils/ffmpegManager';
-  import { VideoTractItem } from '@/stores/trackState';
+  import type FFManager from '@/utils/ffmpegManager';
+  import type { VideoTractItem } from '@/stores/trackState';
   import type { PropType } from 'vue';
   const props = defineProps({
     trackItem: {

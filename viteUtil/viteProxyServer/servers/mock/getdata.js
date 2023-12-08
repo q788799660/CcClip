@@ -120,54 +120,74 @@ handler = (req, res) => {
         type: 'text',
         items: [
           {
-            name: '文字1',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 0,
-            cover: '/image/text/text_0.png'
+            cover: '/image/text/text_0.png',
+            source: '/font/fangsongGBK.ttf',
           },
           {
-            name: '文字2',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 0,
-            cover: '/image/text/text_0.png'
+            cover: '/image/text/text_0.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字3',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 0,
-            cover: '/image/text/text_0.png'
+            cover: '/image/text/text_0.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字4',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 0,
-            cover: '/image/text/text_0.png'
+            cover: '/image/text/text_0.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字5',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 0,
-            cover: '/image/text/text_0.png'
+            cover: '/image/text/text_0.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字6',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 1,
-            cover: '/image/text/text_1.png'
+            cover: '/image/text/text_1.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字7',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 1,
-            cover: '/image/text/text_1.png'
+            cover: '/image/text/text_1.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字8',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 1,
-            cover: '/image/text/text_1.png'
+            cover: '/image/text/text_1.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字9',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 1,
-            cover: '/image/text/text_1.png'
+            cover: '/image/text/text_1.png',
+            source: '/font/fangsongGBK.ttf'
           },
           {
-            name: '文字10',
+            name: 'fangsongGBK',
+            format: 'ttf',
             templateId: 1,
-            cover: '/image/text/text_1.png'
+            cover: '/image/text/text_1.png',
+            source: '/font/fangsongGBK.ttf'
           }
         ]
       }

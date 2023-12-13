@@ -17,7 +17,8 @@
           top: `${item.t}px`,
           width: `${item.w}px`,
           height: `${item.h}px`,
-          transform: `scale(${item.scale}, ${item.scale})`
+          transform: `scale(${item.scale}, ${item.scale})`,
+          transformOrigin: 'left top'
         }"
         class="move-target absolute"
         @click.stop="selectItem(item.id)"

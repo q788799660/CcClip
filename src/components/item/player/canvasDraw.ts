@@ -126,6 +126,7 @@ export class CanvasPlayer {
                 const frame = Math.max(frameIndex - start + offsetL, 1); // 默认展示首帧
                 const blobFrame = this.ffmpeg.getFrame(name, frame);
                 createImageBitmap(blobFrame as Blob).then(imageBitmap => {
+                    // this.renderContext?.drawImage(imageBitmap, 0, 0, sourceWidth, sourceHeight, drawL, drawT, drawW, drawH);
                     this.renderContext?.drawImage(imageBitmap, 0, 0, sourceWidth, sourceHeight, drawL, drawT, drawW, drawH);
                     resolve(true);
                 });

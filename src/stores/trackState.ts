@@ -7,7 +7,7 @@ import { getJsonParse } from '@/utils/common';
 export type TrackType = 'video' | 'audio' | 'text' | 'image' | 'effect' | 'transition' | 'filter';
 interface BaseTractItem {
   id: string,
-  type: TrackType,
+  // type: TrackType,
   name: string,
   /** 起始帧 */
   start: number,
@@ -19,6 +19,7 @@ interface BaseTractItem {
   offsetR: number, // 音视频右侧裁切
 }
 export interface VideoTractItem extends BaseTractItem{
+  type: 'video',
   time: number,
   format: string,
   source: string,
@@ -29,6 +30,7 @@ export interface VideoTractItem extends BaseTractItem{
 }
 
 export interface AudioTractItem extends BaseTractItem{
+  type: 'audio',
   time: number,
   format: string,
   source: string
@@ -36,6 +38,7 @@ export interface AudioTractItem extends BaseTractItem{
 }
 
 export interface TextTractItem extends BaseTractItem{
+  type: 'text',
   cover: string,
   templateId: number,
   source: string,
@@ -43,6 +46,7 @@ export interface TextTractItem extends BaseTractItem{
 }
 
 export interface ImageTractItem extends BaseTractItem{
+  type: 'image',
   source: string,
   format: string,
   width: number,
@@ -52,16 +56,19 @@ export interface ImageTractItem extends BaseTractItem{
 }
 
 export interface EffectTractItem extends BaseTractItem{
+  type: 'effect',
   templateId: number,
   cover: string
 }
 
 export interface TransitionTractItem extends BaseTractItem{
+  type: 'transition',
   templateId: number,
   cover: string
 }
 
 export interface FilterTractItem extends BaseTractItem{
+  type: 'filter',
   templateId: number,
   cover: string
 }
@@ -72,6 +79,23 @@ export interface TrackLineItem {
   main?: boolean,
   list: TrackItem[]
 }
+// interface TrackAttr {
+//   color?: {
+//     r: number,
+//     g: number,
+//     b: number,
+//     a: number
+//   },
+//   fontSize?: number,
+//   left: number,
+//   scale: number,
+//   text?: string,
+//   top: number
+// }
+
+// export interface TrackAttrMap {
+//   [key: string]: TrackAttr;
+// }
 
 export const useTrackState = defineStore('trackState', () => {
   const attrStore = useTrackAttrState();

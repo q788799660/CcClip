@@ -51,7 +51,7 @@
   const ffmpeg = inject('ffmpeg') as FFManager;
 
   async function exportMp4() {
-    console.log(playerStore.trackData)
+    console.time('export');
     const { VideoUrl } = await ffmpeg.getVideo(playerStore.trackData, toRaw(attrStore.trackAttrMap));
     const video = document.createElement('video');
     video.src = VideoUrl;
@@ -62,6 +62,7 @@
     video.play();
     video.controls = true;
     document.body.appendChild(video);
+    console.timeEnd('export');
     nextTick(() => {
       console.log(ffmpeg);
       console.log(VideoUrl);

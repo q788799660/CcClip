@@ -79,8 +79,8 @@ export function computedItemShowArea(trackItem: Record<string, any>, canvasSize:
     // 由默认位置计算偏移缩放位置
     const scaleW = Math.floor(defaultW * scale / 100);
     const scaleH = Math.floor(defaultH * scale / 100);
-    const scaleL = Math.floor(left + (defaultW - scaleW) / 2);
-    const scaleT = Math.floor(top + (defaultH - scaleH) / 2);
+    const scaleL = Math.floor(left);
+    const scaleT = Math.floor(top);
     const diffW = Math.floor(playerW - scaleW);
     const diffH = Math.floor(playerH - scaleH);
     return {
@@ -113,6 +113,17 @@ export function poiXYBaseCenter(x: number, y: number, width: number, height: num
         x: x + width / 2,
         y: y + height / 2
     };
+}
+
+/**
+ * rgb 转换成 16进制
+ * @param r 通道r
+ * @param g 通道g
+ * @param b 通道b
+ * @returns 转换后的16进制
+ */
+export function transformRgb(r: number, g: number, b: number) {
+    return r.toString(16) + g.toString(16) + b.toString(16);
 }
 
 // 封装json格式化, 避免error
